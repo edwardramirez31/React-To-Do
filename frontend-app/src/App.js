@@ -109,6 +109,26 @@ function App() {
     setActiveItem(task)
   };
 
+  const handleComplete = (task) => {
+    task.completed = !task.completed;
+    console.log({completed: task.completed})
+    setTasks(tasks.map(item => item.id === task.id ? task : item));
+     fetch(`http://edwardramirez.pythonanywhere.com/task/${task.id}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({"completed": task.completed, "text": task.text})
+      })
+        .then(response => {
+          console.log(response);
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("HTTP ERROR: " + response.status);
+          }
+        })
+        .then(data => console.log(data))
+        .catch(err => console.log(err));
+  }
   return (
     <div className="container">
       <div id="task-container">
@@ -124,10 +144,10 @@ function App() {
             </div>
           </form>
         </div>
-        <div id="list-wrapper">
+        <div id="list-wrapper" className="d-flex flex-column-reverse">
           {tasks && tasks.map((task) => (
-            <div className="task-wrapper flex-wrapper" key={task.id}>
-              <div style={{ flex: 7, textDecorationLine: task.completed ?'line-through': 'none' }}>
+            <div className="task-wrapper flex-wrapper" key={task.id} >
+              <div style={{ flex: 7, textDecorationLine: task.completed ?'line-through': 'none' }} onClick={() => handleComplete(task)}>
                 <span>{task.text }</span>
               </div>
               <div style={{flex: 1}}>
